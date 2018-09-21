@@ -20,6 +20,7 @@ int (*socket_call_clib)(int domain, int type, int protocol);
 
 int debug = 0;
 int use_keepalive = 1;
+int tcp_user_timeout = -1;
 int eval_environment_once = 0;
 int tcp_keepalive_time = -1;
 int tcp_keepalive_intvl = -1;
@@ -52,6 +53,12 @@ static void eval_environment() {
     LOG("TCP keepalive is switched off");
   } else {
     LOG("TCP keepalive is switched on");
+  }
+
+  char const *const str_tcp_user_timeout = getenv("DD_TCP_USER_TIMEOUT");
+  if (str_tcp_user_timeout != NULL) {
+    tcp_user_timeout = atoi(str_tcp_user_timeout);
+    LOG("set TCP_USER_TIMEOUT [%d]", tcp_user_timeout);
   }
 
 #define EVAL_ENV(ltype, strtype)                                               \
@@ -203,6 +210,15 @@ int socket(int domain, int type, int protocol) {
   SET_SOCK_OPT(intvl, "INTVL", TCP_KEEPINTVL);
   SET_SOCK_OPT(probes, "PROBES", TCP_KEEPCNT);
 
+  if (tcp_user_timeout >= 0) {
+    LOG("Seting tcp_user_timeout [%d]", tcp_user_timeout);
+    int const ssopt =
+      setsockopt(socket_fd, SOL_TCP, TCP_USER_TIMEOUT, &tcp_user_timeout,
+                 sizeof(tcp_user_timeout));
+    if (ssopt == -1) {
+      LOG("Setting tcp_user_timeout returned error [%m]");
+    }
+  }
 #undef SET_SOCK_OPT
 
   LOG("Finished; returning to caller [%d]", socket_fd);
