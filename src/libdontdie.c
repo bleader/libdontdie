@@ -197,7 +197,7 @@ int socket(int domain, int type, int protocol) {
 
 #define SET_SOCK_OPT(ltype, strtype, tcp_type)                                 \
   if (tcp_keepalive_##ltype >= 0) {                                            \
-    LOG("Seting " strtype " [%d]", tcp_keepalive_##ltype);                     \
+    LOG("Setting " strtype " [%d]", tcp_keepalive_##ltype);                     \
     int const ssopt =                                                          \
         setsockopt(socket_fd, SOL_TCP, tcp_type, &tcp_keepalive_##ltype,       \
                    sizeof(tcp_keepalive_##ltype));                             \
@@ -211,7 +211,7 @@ int socket(int domain, int type, int protocol) {
   SET_SOCK_OPT(probes, "PROBES", TCP_KEEPCNT);
 
   if (tcp_user_timeout >= 0) {
-    LOG("Seting tcp_user_timeout [%d]", tcp_user_timeout);
+    LOG("Setting tcp_user_timeout [%d]", tcp_user_timeout);
     int const ssopt =
       setsockopt(socket_fd, SOL_TCP, TCP_USER_TIMEOUT, &tcp_user_timeout,
                  sizeof(tcp_user_timeout));
